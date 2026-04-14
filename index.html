@@ -1,0 +1,407 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.1">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="zh-CN"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;SYNAPSE Pro | 行为模式高精度解析&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&amp;display=swap');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>:root {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--primary: #00ffff;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--secondary: #7000ff;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--bg: #000000;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--glass: rgba(10, 10, 15, 0.7);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--border: rgba(255, 255, 255, 0.18);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--text: #ffffff;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--glow: 0 0 15px rgba(0, 255, 255, 0.4);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; cursor: none; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* ----------------------- 1. 极致动效背景 ----------------------- */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#canvas-stage {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: fixed;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>inset: 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>z-index: 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>filter: contrast(1.5) brightness(0.7);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.noise-overlay {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: fixed;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>inset: 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: url('https://grainy-gradients.vercel.app/noise.svg');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>opacity: 0.05;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>pointer-events: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>z-index: 1;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* ----------------------- 2. 交互光标系统 ----------------------- */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#cursor-core {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: fixed;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 8px; height: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: #fff;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>pointer-events: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>z-index: 10001;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 0 20px #fff;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: transform 0.1s;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>#cursor-aura {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: fixed;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 44px; height: 44px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 1px solid rgba(255, 255, 255, 0.2);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>pointer-events: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>z-index: 10000;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* ----------------------- 3. 超高级液态玻璃容器 ----------------------- */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.master-frame {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: relative;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>z-index: 10;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 95vw;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>max-width: 1200px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 700px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: grid;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>grid-template-columns: 350px 1fr 280px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gap: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transform-style: preserve-3d;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.glass-panel {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: var(--glass);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>backdrop-filter: blur(40px) saturate(200%);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>-webkit-backdrop-filter: blur(40px) saturate(200%);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 1px solid var(--border);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 36px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: relative;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>overflow: hidden;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>flex-direction: column;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 50px 100px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,255,255,0.05);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* 装饰用SVG边框 */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.glass-panel::before {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>content: "";</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: absolute;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>inset: 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 36px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 1px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: linear-gradient(135deg, rgba(255,255,255,0.3), transparent 40%, rgba(255,255,255,0.1));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>-webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>mask-composite: exclude;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>pointer-events: none;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* ----------------------- 4. 侧边栏仪表盘 ----------------------- */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.side-bar { padding: 40px 25px; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.data-stream { font-family: monospace; font-size: 10px; color: var(--primary); opacity: 0.6; line-height: 2; margin-top: 20px; overflow: hidden; }</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.pulse-circle {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 80px; height: 80px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 2px solid var(--primary);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin: 0 auto 30px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: flex; align-items: center; justify-content: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>animation: pulse 2s infinite;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>@keyframes pulse {<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0,255,255,0.7); }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>70% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(0,255,255,0); }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>100% { transform: scale(1); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* ----------------------- 5. 主交互区 ----------------------- */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.main-panel { padding: 80px 60px; justify-content: center; }</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.label-tech {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 12px; font-weight: 800; letter-spacing: 5px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: var(--primary); text-transform: uppercase; margin-bottom: 15px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>text-shadow: var(--glow);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>h1 {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 64px; font-weight: 900; line-height: 0.9;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-bottom: 25px; letter-spacing: -3px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: linear-gradient(180deg, #fff 0%, #aaa 100%);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>-webkit-background-clip: text; -webkit-text-fill-color: transparent;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.desc-text {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 18px; line-height: 1.6; color: rgba(255,255,255,0.8);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>max-width: 500px; margin-bottom: 40px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>text-shadow: 0 2px 10px rgba(0,0,0,0.5);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* ----------------------- 6. 极致按钮系统 ----------------------- */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.btn-stack { display: flex; flex-direction: column; gap: 15px; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.fancy-btn {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: rgba(255,255,255,0.03);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 1px solid var(--border);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 26px 35px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 24px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: #fff; font-size: 16px; font-weight: 600;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>text-align: left; transition: all 0.4s;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: relative; overflow: hidden;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: flex; justify-content: space-between; align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.fancy-btn:hover {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: #fff; color: #000;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transform: translateX(15px) scale(1.02);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 20px 40px rgba(0,0,0,0.4);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.fancy-btn::after {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>content: "→"; opacity: 0; transform: translateX(-20px); transition: 0.3s;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.fancy-btn:hover::after { opacity: 1; transform: translateX(0); }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* ----------------------- 7. 进度显示器 ----------------------- */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.progress-container {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: absolute; bottom: 60px; left: 60px; right: 60px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.bar-bg { width: 100%; height: 2px; background: rgba(255,255,255,0.1); border-radius: 2px; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.bar-fill { height: 100%; background: var(--primary); width: 0%; transition: 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow: 0 0 15px var(--primary); }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* ----------------------- 8. 结果页面 ----------------------- */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.result-container { display: none; text-align: center; animation: resultAppear 1.2s forwards; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>@keyframes resultAppear {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>from { opacity: 0; filter: blur(20px); transform: scale(0.8); }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>to { opacity: 1; filter: blur(0); transform: scale(1); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.final-title {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 110px; font-weight: 900; letter-spacing: -6px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: linear-gradient(to bottom, #fff, #444);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>-webkit-background-clip: text; -webkit-text-fill-color: transparent;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin: 20px 0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* 辅助滤镜 */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.hidden { display: none !important; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;canvas id="canvas-stage"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="noise-overlay"&gt;&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="cursor-core"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="cursor-aura"&gt;&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="master-frame" id="app"&gt;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;aside class="glass-panel side-bar"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="pulse-circle"&gt;&lt;span id="sync-val"&gt;00&lt;/span&gt;%&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="label-tech" style="font-size: 10px; text-align: center;"&gt;Sensor Active&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="data-stream" id="console"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>[SYSTEM] Neural link ready...&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>[STABLE] Environment 24°C&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>[DATA] Syncing behavioral cache...</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/aside&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;main class="glass-panel main-panel"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="quiz-flow"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="label-tech"&gt;Synapse v26.4 Neural Test&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h1 id="title-main"&gt;人格指纹&lt;br&gt;深度校验。&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="desc-text" id="desc-main"&gt;本系统通过分析您对日常高频场景的潜意识反馈，构建高维人格拓扑模型。请在感官触发后立即做出选择。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="btn-stack" id="btn-stack"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button class="fancy-btn" onclick="startTest()"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;span&gt;INITIALIZE / 启动校验序列&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="result-screen" class="result-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="label-tech"&gt;Decoding Complete&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h1 class="final-title"&gt;你是GAY&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="desc-text" style="margin: 0 auto 30px;"&gt;基于 1024 位加密算法计算得出。该人格特质具有生物锁定性，结果已同步至神经中枢。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button class="fancy-btn" style="margin: 0 auto; width: 200px;" onclick="location.reload()"&gt;重新校验&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="progress-container" id="p-bar"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="bar-bg"&gt;&lt;div class="bar-fill" id="progress"&gt;&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/main&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;aside class="glass-panel side-bar" style="font-size: 10px; line-height: 2.5; color: var(--text);"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="label-tech"&gt;Bio Metrics&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>HEART RATE: &lt;span style="color:var(--primary)"&gt;72 BPM&lt;/span&gt;&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>THETA WAVE: &lt;span style="color:var(--primary)"&gt;14.2 Hz&lt;/span&gt;&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>LATENCY: &lt;span style="color:var(--primary)"&gt;0.003 ms&lt;/span&gt;&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div style="margin-top: 40px;"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>[ 测试说明 ]&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>本算法利用非对称加密逻辑，捕捉您在 0.1s 内的行为抖动。</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/aside&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;svg class="hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;defs&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;filter id="liquid"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0<span class="Apple-converted-space">  </span>0 1 0 0 0<span class="Apple-converted-space">  </span>0 0 1 0 0<span class="Apple-converted-space">  </span>0 0 0 18 -7" result="liquid" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/filter&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/defs&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/svg&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ----------------- 1. 高级流体动力学 -----------------</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const canvas = document.getElementById('canvas-stage');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const ctx = canvas.getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let atoms = [];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function initAtoms() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>canvas.width = window.innerWidth;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>canvas.height = window.innerHeight;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>atoms = [];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>for(let i=0; i&lt;15; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>atoms.push({</p>
+<p class="p1"><span class="Apple-converted-space">                </span>x: Math.random() * canvas.width,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>y: Math.random() * canvas.height,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>vx: (Math.random()-0.5) * 0.8,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>vy: (Math.random()-0.5) * 0.8,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>r: Math.random() * 300 + 200,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>color: i % 2 === 0 ? '#0033ff' : '#7000ff'</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function animateAtoms() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>ctx.fillStyle = '#000';</p>
+<p class="p1"><span class="Apple-converted-space">        </span>ctx.fillRect(0,0,canvas.width, canvas.height);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>ctx.globalCompositeOperation = 'screen';</p>
+<p class="p1"><span class="Apple-converted-space">        </span>atoms.forEach(a =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>a.x += a.vx; a.y += a.vy;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if(a.x &lt; -a.r) a.x = canvas.width + a.r;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if(a.x &gt; canvas.width + a.r) a.x = -a.r;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if(a.y &lt; -a.r) a.y = canvas.height + a.r;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if(a.y &gt; canvas.height + a.r) a.y = -a.r;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>let g = ctx.createRadialGradient(a.x, a.y, 0, a.x, a.y, a.r);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>g.addColorStop(0, a.color);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>g.addColorStop(1, 'transparent');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.fillStyle = g;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.arc(a.x, a.y, a.r, 0, Math.PI*2);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.fill();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>requestAnimationFrame(animateAtoms);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>window.onresize = initAtoms;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>initAtoms(); animateAtoms();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ----------------- 2. 鼠标视差系统 -----------------</p>
+<p class="p1"><span class="Apple-converted-space">    </span>document.addEventListener('mousemove', e =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const cx = e.clientX, cy = e.clientY;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('cursor-core').style.transform = `translate(${cx-4}px, ${cy-4}px)`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('cursor-aura').style.transform = `translate(${cx-22}px, ${cy-22}px)`;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const rx = (window.innerHeight/2 - cy) / 40;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const ry = (cx - window.innerWidth/2) / 60;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('app').style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ----------------- 3. 题库逻辑 -----------------</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const questions = [</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ q: "如果奶盖茶没有吸管，你会选择？", a: ["豪迈地掀盖喝", "找个勺子挖着吃", "优雅地撕开一个小口"] },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ q: "走进电梯发现只有你一个人，你会？", a: ["对着镜子整理发型", "疯狂按关门键", "发呆盯着楼层数字"] },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ q: "手机屏幕碎了一角，你的处理方式是？", a: ["强迫症发作立马换", "贴个胶带继续用", "视而不见直到报废"] },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ q: "在超市排队，前面的人突然说忘了拿东西离开，你会？", a: ["帮他守着位置", "直接挪到他前面", "内心翻白眼但保持沉默"] },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ q: "当你买了一件非常喜欢的衣服，你会？", a: ["留到重要场合再穿", "明天就穿出去炫耀", "洗完晾干后再决定"] },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ q: "看到一个外形奇怪的水果，你的第一反应？", a: ["查查能不能吃", "直接买一个试试", "拍张照发朋友圈"] },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ q: "睡觉前，你的最后一个动作通常是？", a: ["确认闹钟", "再刷5分钟短视频", "把手机插上充电线"] },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ q: "最后一项：当你看到这个测试结果时，你认为？", a: ["绝对精准", "存在逻辑误差", "仅供娱乐参考"] }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>let current = 0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const qFlow = document.getElementById('quiz-flow');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const stack = document.getElementById('btn-stack');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const prog = document.getElementById('progress');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const consoleBox = document.getElementById('console');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function startTest() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>renderQuestion();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function renderQuestion() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if(current &gt;= questions.length) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>showFinal();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const data = questions[current];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const syncVal = Math.floor((current / questions.length) * 100);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('sync-val').innerText = syncVal.toString().padStart(2, '0');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>prog.style.width = syncVal + '%';</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// 模拟控制台数据</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const l = document.createElement('div');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>l.innerHTML = `&gt; Step_${current+1}: Data segment synced...`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>consoleBox.prepend(l);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>qFlow.style.opacity = 0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>qFlow.style.transform = "translateY(20px)";</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>setTimeout(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('title-main').innerText = data.q;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('desc-main').innerText = `Sequence Identifier: 0${current+1} / Behavioral Mapping Active.`;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>stack.innerHTML = data.a.map(opt =&gt; `</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button class="fancy-btn" onclick="next()"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span&gt;${opt}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>`).join('');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>qFlow.style.opacity = 1;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>qFlow.style.transform = "translateY(0)";</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}, 400);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function next() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>current++;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>renderQuestion();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function showFinal() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('sync-val').innerText = "99";</p>
+<p class="p1"><span class="Apple-converted-space">        </span>prog.style.width = '100%';</p>
+<p class="p1"><span class="Apple-converted-space">        </span>qFlow.classList.add('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('p-bar').classList.add('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('result-screen').classList.remove('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('result-screen').style.display = 'block';</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const l = document.createElement('div');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>l.style.color = "white";</p>
+<p class="p1"><span class="Apple-converted-space">        </span>l.innerHTML = `&gt; ANALYSIS COMPLETE. &lt;br&gt; &gt; FINAL STATE LOCKED.`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>consoleBox.prepend(l);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1">&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
