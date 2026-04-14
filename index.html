@@ -12,22 +12,13 @@
             --secondary: #ff00ea;
             --bg: #030303;
             --border: rgba(255, 255, 255, 0.18);
-            --mouse-x: 50%;
-            --mouse-y: 50%;
         }
 
-        * { 
-            margin: 0; padding: 0; box-sizing: border-box; 
-            font-family: 'Inter', sans-serif; cursor: crosshair; 
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; cursor: crosshair; }
         html, body { height: 100%; overflow: hidden; background: var(--bg); }
         body { color: #fff; display: flex; align-items: center; justify-content: center; perspective: 2000px; }
 
-        /* 隐藏全局滚动条 */
-        ::-webkit-scrollbar { width: 0px; }
-
-        /* --- 炫技：扫描线特效 --- */
+        /* 扫描线 */
         .scanner-line {
             position: fixed; left: 0; width: 100%; height: 2px;
             background: var(--primary); box-shadow: 0 0 20px var(--primary);
@@ -38,27 +29,16 @@
         .scanner-bottom { bottom: 0; }
         @keyframes scan-init {
             0% { opacity: 1; transform: translateY(0); }
-            50% { opacity: 1; }
             100% { opacity: 0; transform: translateY(50vh); }
         }
         .scanner-bottom { animation: scan-init-bottom 1.2s cubic-bezier(0.19, 1, 0.22, 1) forwards; }
         @keyframes scan-init-bottom {
             0% { opacity: 1; transform: translateY(0); }
-            50% { opacity: 1; }
             100% { opacity: 0; transform: translateY(-50vh); }
         }
 
-        /* --- 背景流体 --- */
-        .fluid-container {
-            position: fixed; inset: -10%; z-index: 0;
-            filter: url('#gooey-ultra');
-            background: #000;
-            animation: bg-pulse 2s cubic-bezier(0.2, 1, 0.3, 1);
-        }
-        @keyframes bg-pulse {
-            0% { transform: scale(0.5); filter: blur(100px); }
-            100% { transform: scale(1); filter: blur(0); }
-        }
+        /* 背景流体 */
+        .fluid-container { position: fixed; inset: -10%; z-index: 0; filter: url('#gooey-ultra'); background: #000; }
         .blob {
             position: absolute; border-radius: 50%; filter: blur(40px); opacity: 0.7;
             mix-blend-mode: screen; animation: float-blob 25s infinite alternate ease-in-out;
@@ -66,23 +46,28 @@
         .blob:nth-child(1) { width: 700px; height: 700px; background: radial-gradient(circle, #0033ff, transparent); top: -10%; left: -10%; }
         .blob:nth-child(2) { width: 600px; height: 600px; background: radial-gradient(circle, #ff00ea, transparent); bottom: -10%; right: -10%; }
         .blob:nth-child(3) { width: 500px; height: 500px; background: radial-gradient(circle, #00f3ff, transparent); top: 30%; left: 30%; }
-
         @keyframes float-blob {
-            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
-            100% { transform: translate(-10vw, 20vh) scale(0.8) rotate(180deg); }
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(-10vw, 20vh) rotate(180deg); }
         }
 
-        /* --- 炫技：3D 核心框架入场 --- */
+        /* 核心框架 */
         .master-frame {
             position: relative; z-index: 10; width: 92vw; max-width: 1100px; height: 650px;
             display: grid; grid-template-columns: 300px 1fr; gap: 30px;
-            max-height: 90vh;
-            transform-style: preserve-3d;
+            max-height: 90vh; transform-style: preserve-3d;
             animation: master-entry 1.5s cubic-bezier(0.23, 1, 0.32, 1) both;
         }
         @keyframes master-entry {
-            0% { opacity: 0; transform: scale(0.8) translateZ(-1000px) rotateY(-30deg); filter: blur(20px); }
-            100% { opacity: 1; transform: scale(1) translateZ(0) rotateY(0deg); filter: blur(0); }
+            0% { opacity: 0; transform: scale(0.8) translateZ(-1000px); filter: blur(20px); }
+            100% { opacity: 1; transform: scale(1) translateZ(0); filter: blur(0); }
+        }
+
+        @media (max-width: 768px) {
+            .master-frame { grid-template-columns: 80px 1fr; gap: 15px; width: 96vw; }
+            h1 { font-size: 24px !important; }
+            .desc-text { font-size: 13px !important; }
+            .glass-panel { padding: 20px 15px !important; border-radius: 25px !important; }
         }
 
         .glass-panel {
@@ -93,74 +78,93 @@
             padding: 40px;
             position: relative;
             box-shadow: 0 40px 100px rgba(0,0,0,0.8);
-            overflow: visible; /* 必须 visible 确保按钮 hover 不被切断 */
+            overflow: visible; /* 必须 visible 确保光晕不被切断 */
         }
 
         .label-tech { font-size: 10px; font-weight: 900; color: var(--primary); letter-spacing: 5px; margin-bottom: 20px; text-transform: uppercase; }
-        h1 { font-size: 42px; font-weight: 900; line-height: 1.1; margin-bottom: 20px; letter-spacing: -1px; }
+        h1 { font-size: 42px; font-weight: 900; line-height: 1.1; margin-bottom: 20px; }
         .desc-text { font-size: 16px; line-height: 1.6; color: rgba(255,255,255,0.6); margin-bottom: 30px; }
 
-        /* --- 按钮堆栈优化 --- */
+        /* 按钮区：解决圆角阴影截断 */
         .btn-stack { 
             display: flex; flex-direction: column; gap: 12px; 
             overflow-y: auto; overflow-x: visible;
-            padding: 10px 30px 10px 5px; /* 右侧 padding 留出空间给 hover */
+            padding: 10px 40px 10px 5px; 
             margin-right: -20px; 
         }
         .fancy-btn {
-            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-            padding: 18px 25px; border-radius: 20px; color: #fff; font-size: 15px; font-weight: 600; text-align: left;
+            background: rgba(255,255,255,0.06); 
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 18px 25px; 
+            border-radius: 20px; /* 强制圆角 */
+            color: #fff; font-size: 15px; font-weight: 600; text-align: left;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            backdrop-filter: blur(10px); width: 100%; flex-shrink: 0;
+            backdrop-filter: blur(15px); 
+            width: 100%; flex-shrink: 0;
+            -webkit-background-clip: padding-box; /* 修正背景溢出导致的方边 */
+            background-clip: padding-box;
         }
-        .fancy-btn:hover {
+        .fancy-btn:hover, .fancy-btn:active {
             background: #fff; color: #000; 
-            transform: scale(1.05) translateX(15px);
-            box-shadow: -10px 0 30px var(--primary), 0 10px 40px rgba(0,0,0,0.5);
-            z-index: 50;
+            transform: scale(1.03) translateX(10px);
+            /* 修正：使用更柔和的多重阴影确保圆角视觉 */
+            box-shadow: 
+                -10px 0 30px var(--primary),
+                0 0 15px rgba(0, 243, 255, 0.5);
+            border-color: #fff;
         }
 
         .progress-box { width: 100%; height: 4px; background: rgba(255,255,255,0.08); margin-top: 20px; border-radius: 2px; overflow: hidden; }
         .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); width: 0%; transition: 0.6s ease; }
 
-        /* --- 炫技：终极结局动画 --- */
+        /* --- 结果字体：光线追踪反光效果 --- */
         .result-screen { display: none; text-align: center; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
         
-        /* 现实破碎震动 */
-        .hyper-shake { animation: hyper-shake 0.3s infinite; }
-        @keyframes hyper-shake {
-            0% { transform: translate(0,0) skew(0deg); filter: hue-rotate(0deg); }
-            25% { transform: translate(-5px, 5px) skew(2deg); filter: hue-rotate(90deg); }
-            50% { transform: translate(5px, -5px) skew(-2deg); }
-            75% { transform: translate(-5px, -5px); filter: contrast(200%); }
-            100% { transform: translate(5px, 5px); }
-        }
-
         .glitch-text {
-            font-size: 90px; font-weight: 900; letter-spacing: -5px; 
-            background: linear-gradient(to bottom, #fff, #888);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 30px rgba(255,255,255,0.5));
+            font-size: clamp(40px, 12vw, 90px); 
+            font-weight: 900; letter-spacing: -2px; 
+            position: relative;
+            background: linear-gradient(
+                135deg, 
+                #fff 20%, 
+                #555 35%, 
+                #fff 45%, 
+                #fff 55%, 
+                #555 65%, 
+                #fff 80%
+            );
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            /* 逼真的光线散射与反射 */
+            filter: 
+                drop-shadow(0 0 2px rgba(255,255,255,1))
+                drop-shadow(0 0 15px var(--primary))
+                drop-shadow(0 0 40px var(--secondary));
+            animation: ray-tracing 2.5s infinite linear;
         }
 
-        /* 能量环 */
-        .energy-ring {
-            position: absolute; border: 2px solid var(--secondary); border-radius: 50%;
-            pointer-events: none; opacity: 0;
+        @keyframes ray-tracing {
+            0% { background-position: 100% 0; }
+            100% { background-position: -200% 0; }
         }
+
+        .hyper-shake { animation: hyper-shake 0.2s infinite; }
+        @keyframes hyper-shake {
+            0% { transform: translate(2px, 2px); }
+            50% { transform: translate(-2px, -2px); }
+            100% { transform: translate(0,0); }
+        }
+
+        .energy-ring { position: absolute; border: 2px solid var(--secondary); border-radius: 50%; pointer-events: none; opacity: 0; }
         .ring-anim { animation: ring-out 0.8s ease-out forwards; }
         @keyframes ring-out {
             0% { width: 0; height: 0; opacity: 1; border-width: 20px; }
             100% { width: 1000px; height: 1000px; opacity: 0; border-width: 1px; }
         }
 
-        .flash-overlay { position: fixed; inset: 0; background: #fff; z-index: 9999; opacity: 0; pointer-events: none; }
+        .flash-overlay { position: fixed; inset: 0; background: #fff; z-index: 9999; opacity: 0; pointer-events: none; transition: 0.2s; }
         .hidden { display: none !important; }
-
-        @media (max-width: 768px) {
-            .master-frame { grid-template-columns: 1fr; height: 90vh; }
-            #console-logs { display: none; }
-        }
     </style>
 </head>
 <body>
@@ -183,20 +187,21 @@
     <div id="flash" class="flash-overlay"></div>
 
     <div class="master-frame" id="frame">
-        <aside class="glass-panel" style="padding: 20px; overflow: hidden;">
+        <aside class="glass-panel" style="padding: 20px;">
             <div class="label-tech" style="text-align: center;">System_Log</div>
             <div id="console-logs" style="font-family: monospace; font-size: 11px; color: var(--primary); opacity: 0.7; line-height: 2; height: 100%; overflow-y: auto;">
                 > 链路初始化...完成<br>
-                > 正在同步意识流...<br>
+                > 同步意识流...<br>
                 > 环境噪声抑制: 100%
             </div>
         </aside>
 
         <main class="glass-panel" id="main-panel">
-            <div id="energy-spawn"></div> <div id="quiz-flow" style="display: flex; flex-direction: column; height: 100%; position: relative; z-index: 2;">
+            <div id="energy-spawn"></div> 
+            <div id="quiz-flow" style="display: flex; flex-direction: column; height: 100%; position: relative; z-index: 2;">
                 <div class="label-tech">Core Protocol</div>
                 <h1 id="q-title">正在准备<br>深度解析。</h1>
-                <p class="desc-text" id="q-desc">本程序将通过非线性行为逻辑，在数秒内构建您的人格全息图。请保持直觉。</p>
+                <p class="desc-text" id="q-desc">本程序将通过非线性逻辑，构建人格全息图。</p>
                 
                 <div class="btn-stack" id="btn-stack">
                     <button class="fancy-btn" onclick="startTest()">[ 建立神经连接 ]</button>
@@ -208,8 +213,8 @@
             <div id="result-screen" class="result-screen">
                 <div class="label-tech" style="color: var(--secondary);">SCAN_COMPLETE // 100% ACCURACY</div>
                 <h1 class="glitch-text" id="final-word">CALCULATING</h1>
-                <p class="desc-text" style="color: var(--primary); font-family: monospace; margin-top: 20px;">[ 唯一匹配 ID 已生成 ]</p>
-                <button class="fancy-btn" style="text-align: center; width: 200px; border-color: var(--secondary);" onclick="location.reload()">重新初始化</button>
+                <p class="desc-text" style="color: var(--primary); font-family: monospace; margin-top: 20px;">[ 唯一身份标识已锁定 ]</p>
+                <button class="fancy-btn" style="text-align: center; width: 200px; border-color: var(--secondary); align-self: center;" onclick="location.reload()">重新初始化</button>
             </div>
         </main>
     </div>
@@ -219,37 +224,18 @@
     const mainPanel = document.getElementById('main-panel');
     const logger = document.getElementById('console-logs');
 
-    // 鼠标 3D 悬浮效果
+    // 鼠标/触控 3D 偏移
     document.addEventListener('mousemove', e => {
-        const x = (window.innerWidth / 2 - e.clientX) / 25;
-        const y = (window.innerHeight / 2 - e.clientY) / 25;
+        const x = (window.innerWidth / 2 - e.clientX) / 30;
+        const y = (window.innerHeight / 2 - e.clientY) / 30;
         frame.style.transform = `rotateY(${-x}deg) rotateX(${y}deg)`;
-        
-        const rect = mainPanel.getBoundingClientRect();
-        mainPanel.style.setProperty('--mouse-x', `${((e.clientX - rect.left) / rect.width) * 100}%`);
-        mainPanel.style.setProperty('--mouse-y', `${((e.clientY - rect.top) / rect.height) * 100}%`);
     });
 
     const questions = [
         { q: "看到群里发红包，你的第一反应？", a: ["瞬间秒抢", "淡定观察", "从不关心"] },
-        { q: "朋友说了一段话你没听清：", a: ["假装听懂点头笑", "让他再说一遍", "直接不接话"] },
-        { q: "耳机线缠在一起时：", a: ["耐心解开", "暴力扯开试试", "直接不用了"] },
-        { q: "洗澡发现没带浴巾：", a: ["湿漉漉冲出去", "大喊求救", "等风干"] },
-        { q: "走在路上突然想起尴尬往事：", a: ["原地自闭", "老脸一红快步走", "假装没想起过"] },
-        { q: "手机电量剩下 1% 时：", a: ["全城找线", "心平气和看它灭", "立刻关机省电"] },
-        { q: "奶茶喝到最后剩下几颗珍珠：", a: ["吸到断气", "随缘吸", "直接扔"] },
-        { q: "进电梯发现有人一直盯着你：", a: ["盯回去", "看手机", "对他笑笑"] },
-        { q: "看到前任过得不如你：", a: ["窃喜", "无感", "发朋友圈庆祝"] },
-        { q: "被当众夸奖时：", a: ["尴尬想逃", "内心狂喜表面淡定", "怀疑对方有求于我"] },
-        { q: "买衣服发现穿反了：", a: ["找厕所换", "这叫个性", "假装不知道"] },
-        { q: "深夜想吃火锅但怕胖：", a: ["直接点单", "喝水看吃播", "立刻睡觉"] },
-        { q: "隐身一小时你会：", a: ["去做恶作剧", "去银行看看", "观察讨厌的人"] },
-        { q: "讨厌的人发了朋友圈：", a: ["心里吐槽", "屏蔽他", "假装没看见"] },
-        { q: "收到“在吗”的消息：", a: ["秒回", "看是谁决定在不在", "用意念回过了"] },
-        { q: "别人偷看你手机屏幕：", a: ["立刻关屏", "无所谓", "盯着他看"] },
-        { q: "被夸“你好聪明”：", a: ["那是当然", "客套一下", "他绝对想借钱"] },
+        { q: "耳机线缠在一起时：", a: ["耐心解开", "暴力扯开", "直接不用了"] },
+        { q: "手机电量剩下 1% 时：", a: ["全城找线", "看它熄灭", "立刻关机"] },
         { q: "想起明天要上班/上学：", a: ["痛苦哀嚎", "习惯了", "想消失"] },
-        { q: "死后墓碑上想写：", a: ["这人真帅", "终于能睡个好觉", "别看我了去玩吧"] },
         { q: "最后，你觉得自己有病吗？", a: ["病入膏肓", "很正常", "我是天才"] }
     ];
 
@@ -260,7 +246,7 @@
         if(step >= questions.length) { triggerSupernova(); return; }
         const data = questions[step];
         document.getElementById('q-title').innerText = data.q;
-        document.getElementById('q-desc').innerText = `正在分析神经元响应... [碎片 ${step+1}/20]`;
+        document.getElementById('q-desc').innerText = `分析中... [${step+1}/${questions.length}]`;
         document.getElementById('p-fill').style.width = ((step+1)/questions.length)*100 + '%';
         
         document.getElementById('btn-stack').innerHTML = data.a.map((opt, i) => 
@@ -268,7 +254,7 @@
         ).join('');
 
         const log = document.createElement('div');
-        log.innerHTML = `> ANALYZING_DATA_POINT_${step+1}... OK`;
+        log.innerHTML = `> SCAN_NODE_${step+1}... OK`;
         logger.prepend(log);
     }
     function nextStep() { step++; render(); }
@@ -276,21 +262,16 @@
     function triggerSupernova() {
         document.getElementById('quiz-flow').classList.add('hidden');
         document.getElementById('result-screen').style.display = 'flex';
-        
-        // 开启疯狂震动
         mainPanel.classList.add('hyper-shake');
         
-        // 随机字符跳动
         let timer = setInterval(() => {
-            const chars = "!@#$%^&*()_+1234567890QWERTYUIOPASDFGHJKLZXCVBNM";
+            const chars = "X01¥$#&@?";
             document.getElementById('final-word').innerText = chars[Math.floor(Math.random()*chars.length)].repeat(5);
-        }, 40);
+        }, 50);
 
         setTimeout(() => {
             clearInterval(timer);
             mainPanel.classList.remove('hyper-shake');
-            
-            // 能量爆发特效
             const ring = document.createElement('div');
             ring.className = 'energy-ring ring-anim';
             document.getElementById('energy-spawn').appendChild(ring);
@@ -299,16 +280,14 @@
             setTimeout(() => document.getElementById('flash').style.opacity = '0', 200);
 
             document.getElementById('final-word').innerText = "你是GAY";
-            document.getElementById('final-word').style.webkitTextFillColor = 'white';
-            
-            logger.innerHTML = `<div style="color:var(--secondary)">> [CRITICAL] 性向算法溢出<br>> 真实身份已锁定。</div>` + logger.innerHTML;
+            logger.innerHTML = `<div style="color:var(--secondary)">> [CRITICAL] 性向溢出。</div>` + logger.innerHTML;
         }, 1800);
     }
 </script>
 
 <style>
     @keyframes btn-in {
-        from { opacity: 0; transform: translateX(-20px) rotateX(-20deg); }
+        from { opacity: 0; transform: translateX(-15px) rotateX(-10deg); }
         to { opacity: 1; transform: translateX(0) rotateX(0); }
     }
 </style>
