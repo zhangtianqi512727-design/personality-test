@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>SYNAPSE | 极智人格解析</title>
     <style>
-        /* ========== 全部保留原有样式 ========== */
+        /* ========== 全部原有样式 (未改动核心视觉) ========== */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap');
 
         :root {
@@ -74,6 +74,7 @@
             100% { transform: translate(-10vw, 15vh) scale(0.9) rotate(180deg); }
         }
 
+        /* 横屏提示默认隐藏，由JS控制显示 */
         .landscape-prompt {
             display: none; position: fixed; inset: 0; z-index: 10000;
             background: rgba(5, 5, 5, 0.98); backdrop-filter: blur(30px);
@@ -96,7 +97,7 @@
             100% { transform: rotate(-90deg); opacity: 0; }
         }
         .landscape-prompt h2 { color: #fff; font-size: 28px; margin-bottom: 10px; font-weight: 300; letter-spacing: 4px; text-shadow: 0 0 20px var(--primary); }
-        .landscape-prompt p { color: rgba(255,255,255,0.5); font-size: 13px; letter-spacing: 1px; }
+        .landscape-prompt p { color: rgba(255,255,255,0.5); font-size: 13px; letter-spacing: 1px; line-height: 1.8; }
 
         .master-frame {
             position: relative; z-index: 10; width: 90vw; max-width: 1200px; height: 680px;
@@ -161,16 +162,12 @@
         .fancy-btn:hover::after { left: 200%; transition: 0.8s ease-in-out; }
         .fancy-btn:active { transform: translateX(8px) scale(0.98); transition: 0.1s; }
 
-        /* 移动端模拟hover的激活光效 (液态融合增强) */
         .fancy-btn.tap-active {
             background: rgba(255,255,255,0.15) !important; 
             color: #fff !important; 
             transform: translateX(8px) scale(1.01) !important;
             border-color: rgba(0, 243, 255, 0.6) !important;
-            box-shadow: 
-                -10px 15px 30px rgba(0,0,0,0.4), 
-                0 0 30px rgba(0, 243, 255, 0.4),
-                inset 0 1px 3px rgba(255,255,255,0.6) !important;
+            box-shadow: -10px 15px 30px rgba(0,0,0,0.4), 0 0 30px rgba(0, 243, 255, 0.4), inset 0 1px 3px rgba(255,255,255,0.6) !important;
             text-shadow: 0 0 12px rgba(0, 243, 255, 0.8) !important;
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -179,7 +176,6 @@
             transition: 0.8s ease-in-out !important;
         }
 
-        /* 进度条 (液态玻璃流动) */
         .progress-box { 
             width: 100%; height: 10px; 
             background: rgba(10, 10, 20, 0.5);
@@ -265,7 +261,6 @@
             100% { opacity: 1; transform: translateX(0) translateZ(0) rotateY(0); filter: blur(0); }
         }
 
-        /* 题目切换过渡 (液态融合) */
         .quiz-transition-out {
             opacity: 0 !important;
             filter: blur(8px) !important;
@@ -274,7 +269,6 @@
             pointer-events: none;
         }
 
-        /* 等待加载层 */
         .loading-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(3, 3, 3, 0.6);
@@ -395,7 +389,7 @@
     <div class="landscape-prompt" id="landscape-prompt">
         <div class="phone-icon"></div>
         <h2>需要神经元重组</h2>
-        <p>检测到当前为竖屏模式<br>请将设备<b>横向旋转</b>，以建立最佳全息视觉连接。</p>
+        <p>检测到当前为竖屏模式<br>请将设备<b>横向旋转</b>，以建立最佳全息视觉连接。<br><span style="color: #00f3ff; opacity: 0.9;">⚠️ 请使用浏览器打开，微信内可能无法横屏</span></p>
     </div>
 
     <div class="scanner-line scanner-top"></div>
@@ -460,8 +454,8 @@
 
 <script>
     (function(){
-        // 检测是否为移动端/触摸设备
-        const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0);
+        // 检测是否为触摸设备
+        const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
         
         const frame = document.getElementById('frame');
         const mainPanel = document.getElementById('main-panel');
@@ -469,7 +463,71 @@
         const quizFlow = document.getElementById('quiz-flow');
         const loadingOverlay = document.getElementById('loadingOverlay');
         const resultScreen = document.getElementById('result-screen');
+        const landscapePrompt = document.getElementById('landscape-prompt');
 
+        // ========== 横屏检测与全屏逻辑 ==========
+        function checkOrientation() {
+            const isLandscape = window.innerWidth > window.innerHeight;
+            if (isTouchDevice) {
+                if (isLandscape) {
+                    landscapePrompt.style.display = 'none';
+                    document.querySelector('.master-frame').style.display = 'grid';
+                    // 横屏时尝试隐藏地址栏 (滚动法)
+                    setTimeout(() => { window.scrollTo(0, 1); }, 100);
+                } else {
+                    landscapePrompt.style.display = 'flex';
+                    document.querySelector('.master-frame').style.display = 'none';
+                }
+            } else {
+                // 桌面端始终显示主界面
+                landscapePrompt.style.display = 'none';
+                document.querySelector('.master-frame').style.display = 'grid';
+            }
+        }
+
+        // 全屏请求 (需要用户手势)
+        function requestFullscreen() {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            }
+        }
+
+        // 首次交互时尝试全屏 (横屏触摸设备)
+        let fullscreenRequested = false;
+        function attemptFullscreenOnInteraction() {
+            if (!fullscreenRequested && isTouchDevice && window.innerWidth > window.innerHeight) {
+                fullscreenRequested = true;
+                requestFullscreen();
+            }
+        }
+
+        // 监听点击事件 (用户点击任何地方触发全屏)
+        document.body.addEventListener('click', function initFullscreen(e) {
+            attemptFullscreenOnInteraction();
+            // 同时做一次滚动隐藏
+            window.scrollTo(0, 1);
+        }, { once: false, passive: true });
+
+        // 监听横竖屏变化
+        window.addEventListener('resize', () => {
+            checkOrientation();
+            if (isTouchDevice && window.innerWidth > window.innerHeight) {
+                window.scrollTo(0, 1);
+            }
+        });
+        window.addEventListener('orientationchange', () => {
+            setTimeout(checkOrientation, 50);
+        });
+
+        // 初始检测
+        checkOrientation();
+
+        // ========== 原有交互逻辑 (未改动) ==========
         document.addEventListener('mousemove', e => {
             const x = (window.innerWidth / 2 - e.clientX) / 40;
             const y = (window.innerHeight / 2 - e.clientY) / 40;
@@ -503,7 +561,10 @@
         let isTransitioning = false;
         let tapTimer = null;
 
-        function startTest() { render(); }
+        function startTest() { 
+            attemptFullscreenOnInteraction(); // 开始测试也尝试全屏
+            render(); 
+        }
 
         function render() {
             if(step >= questions.length) { 
@@ -515,13 +576,11 @@
             document.getElementById('q-desc').innerText = `分析中... [碎片 ${step+1}/20]`;
             document.getElementById('p-fill').style.width = ((step+1)/questions.length)*100 + '%';
             
-            // 重新绑定按钮事件，使用自定义处理以支持移动端光效延迟
             const btnStack = document.getElementById('btn-stack');
             btnStack.innerHTML = data.a.map((opt, i) => 
                 `<button class="fancy-btn" data-opt-index="${i}" style="animation: btn-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${i*0.08}s both;">${opt}</button>`
             ).join('');
 
-            // 为所有选项按钮添加点击处理
             document.querySelectorAll('.fancy-btn[data-opt-index]').forEach(btn => {
                 btn.addEventListener('click', handleOptionClick);
             });
@@ -531,29 +590,19 @@
             logger.prepend(log);
         }
 
-        // 统一处理选项点击
         function handleOptionClick(e) {
             if (isTransitioning) return;
             const btn = e.currentTarget;
             
-            // 如果是触摸设备，先展示光效，延迟后切换
             if (isTouchDevice) {
-                // 防止连点
                 if (btn.disabled) return;
-                // 禁用所有按钮避免二次点击
                 document.querySelectorAll('.fancy-btn').forEach(b => b.disabled = true);
-                
-                // 添加光效类
                 btn.classList.add('tap-active');
-                
-                // 1秒后移除光效并执行下一步
                 tapTimer = setTimeout(() => {
                     btn.classList.remove('tap-active');
-                    // 执行实际的下一步过渡
                     proceedToNextStep();
                 }, 1000);
             } else {
-                // 电脑端：立即执行过渡
                 proceedToNextStep();
             }
         }
@@ -562,26 +611,19 @@
             if (isTransitioning) return;
             isTransitioning = true;
             
-            // 清理定时器
             if (tapTimer) {
                 clearTimeout(tapTimer);
                 tapTimer = null;
             }
-            
-            // 移除按钮禁用状态 (因为要切换了)
             document.querySelectorAll('.fancy-btn').forEach(b => b.disabled = false);
-            
-            // 添加退出过渡类
             quizFlow.classList.add('quiz-transition-out');
 
             setTimeout(() => {
                 step++;
-                render();  // render 内部可能触发等待或下一题
-                
-                // 移除过渡类
+                render();
                 quizFlow.classList.remove('quiz-transition-out');
                 isTransitioning = false;
-            }, 350); // 匹配CSS过渡时间
+            }, 350);
         }
 
         function startLoadingThenResult() {
@@ -625,9 +667,7 @@
             }, 2000);
         }
 
-        // 初始启动
         window.startTest = startTest;
-        // 将全局nextStep移除，改用内部处理
     })();
 </script>
 </body>
